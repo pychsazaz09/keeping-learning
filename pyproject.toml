@@ -1,0 +1,13 @@
+[project]
+name = "interview-agent"
+version = "0.1.0"
+description = "面试题库管理CLI工具"
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2.0",
+    "aiofiles>=24.0",
+]
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
