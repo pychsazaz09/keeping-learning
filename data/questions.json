@@ -19,12 +19,12 @@
     "answer": "await释放线程去处理其他IO任务，事件循环调度协程"
   },
   {
-    "id": "fcbf32000393",
-    "title": "FastAPI的Depends依赖注入原理？",
+    "id": "2c7dfb16c6ab",
+    "title": "Python的with语句原理",
     "tags": [
-      "FastAPI"
+      "Python基础"
     ],
-    "difficulty": "medium",
-    "answer": "通过yield管理资源生命周期，请求进来获取，返回时自动关闭"
+    "difficulty": "easy",
+    "answer": "上下文管理器协议，__enter__和__exit__方法"
   }
 ]

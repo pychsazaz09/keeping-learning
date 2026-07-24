@@ -1,7 +1,6 @@
 import json
 import random as rand
 from pathlib import Path
-
 import aiofiles
 
 from models.question import Question
@@ -54,3 +53,30 @@ class JsonStorage:
         if not questions:
             return []
         return rand.sample(questions, min(limit, len(questions)))
+
+    async def update(self,question:Question):
+        question_dicts=await self._read_all()
+        if not question_dicts:
+            raise StorageError("题目库为空")
+        for q in question_dicts:
+            if question.id==q["id"]:
+                q.update(question.model_dump())
+                await self._write_all(question_dicts)
+                return
+        
+
+    async def delete(self,question_id:str):
+        question_dicts=await self._read_all()
+        if not question_dicts:
+            raise StorageError("题目库为空")
+        for q in question_dicts:
+            if question_id==q["id"]:
+                question_dicts.remove(q)
+                await self._write_all(question_dicts)
+                return
+        raise StorageError("题目库为空")
+
+class StorageError(Exception):     # 纯 Python，无第三方依赖
+    pass
+
+    
