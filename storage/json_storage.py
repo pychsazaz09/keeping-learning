@@ -52,7 +52,9 @@ class JsonStorage:
         questions = await self.list_all(tag=tag)
         if not questions:
             return []
-        return rand.sample(questions, min(limit, len(questions)))
+        if limit<=0:
+            limit=1
+        return rand.sample(questions, min(limit, len(questions)))#不重复抽取用sample
 
     async def update(self,question:Question):
         question_dicts=await self._read_all()
