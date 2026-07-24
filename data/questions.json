@@ -1,0 +1,30 @@
+[
+  {
+    "id": "1f92c59ff139",
+    "title": "Python中GIL是什么？",
+    "tags": [
+      "Python基础",
+      "并发"
+    ],
+    "difficulty": "medium",
+    "answer": "全局解释器锁，同一时刻只有一个线程执行Python字节码"
+  },
+  {
+    "id": "d1b3b88f852e",
+    "title": "async/await底层原理是什么？",
+    "tags": [
+      "Python异步"
+    ],
+    "difficulty": "hard",
+    "answer": "await释放线程去处理其他IO任务，事件循环调度协程"
+  },
+  {
+    "id": "fcbf32000393",
+    "title": "FastAPI的Depends依赖注入原理？",
+    "tags": [
+      "FastAPI"
+    ],
+    "difficulty": "medium",
+    "answer": "通过yield管理资源生命周期，请求进来获取，返回时自动关闭"
+  }
+]
