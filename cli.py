@@ -1,6 +1,8 @@
 import asyncio
 import argparse
-from storage.json_storage import JsonStorage
+#from storage.json_storage import JsonStorage
+from repositories.sqlalchemy_repo import SqlalchemyRepositories
+from database import AsyncSessionLocal
 from models.question import Question
 
 async def main() -> None:
@@ -30,8 +32,9 @@ async def main() -> None:
     args = parser.parse_args()
     print(args)
 
-    storage = JsonStorage("data/questions.json")
-
+    #storage = JsonStorage("data/questions.json")
+    async with AsyncSessionLocal() as session:
+        storage=SqlalchemyRepositories(session)
 
 
     if args.command == "add":
