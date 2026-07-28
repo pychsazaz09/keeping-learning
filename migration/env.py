@@ -1,11 +1,9 @@
-from logging.config import fileConfig
 import asyncio
-from sqlalchemy.ext.asyncio import create_async_engine
-
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from logging.config import fileConfig
 
 from alembic import context
+from sqlalchemy import engine_from_config, pool
+from sqlalchemy.ext.asyncio import create_async_engine
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -53,7 +51,10 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    from models.question_orm import Base
+    import models.question_orm  # ← 加载 QuestionTable
+    import models.user_orm  # ← 加载 UserTable
+    from models.__init__ import Base
+
     target_metadata = Base.metadata
     connectable = create_async_engine(
         config.get_main_option("sqlalchemy.url") or "",
@@ -71,7 +72,6 @@ def run_migrations_online() -> None:
         await connectable.dispose()
 
     asyncio.run(run_async())
-
 
 
 if context.is_offline_mode():

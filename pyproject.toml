@@ -11,4 +11,14 @@ dependencies = [
     "sqlalchemy[asyncio]>=2.0.51",
     "asyncpg>=0.31.0",
     "alembic>=1.18.5",
+    "python-jose[cryptography]>=3.5.0",
+    "passlib[bcrypt]>=1.7.4",
+    "redis>=8.0.1",
+    "loguru>=0.7.3",
+]
+
+[dependency-groups]
+dev = [
+    "black>=26.5.1",
+    "isort>=8.0.1",
 ]

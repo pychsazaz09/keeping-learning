@@ -1,19 +1,26 @@
-import asyncio
 import argparse
-#from storage.json_storage import JsonStorage
-from repositories.sqlalchemy_repo import SqlalchemyRepositories
+import asyncio
+
 from database import AsyncSessionLocal
 from models.question import Question
 
+# from storage.json_storage import JsonStorage
+from repositories.sqlalchemy_repo import SqlalchemyRepositories
+
+
 async def main() -> None:
-    parser = argparse.ArgumentParser(prog="interview-agent", description="面试题库管理工具")
+    parser = argparse.ArgumentParser(
+        prog="interview-agent", description="面试题库管理工具"
+    )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     # add 子命令
     add_cmd = subparsers.add_parser("add", help="添加题目")
     add_cmd.add_argument("title", help="题目标题")
     add_cmd.add_argument("-t", "--tags", default="", help="标签，逗号分隔")
-    add_cmd.add_argument("-d", "--difficulty", default="medium", help="easy/medium/hard")
+    add_cmd.add_argument(
+        "-d", "--difficulty", default="medium", help="easy/medium/hard"
+    )
     add_cmd.add_argument("-a", "--answer", default="", help="答案")
 
     # list 子命令
@@ -32,10 +39,9 @@ async def main() -> None:
     args = parser.parse_args()
     print(args)
 
-    #storage = JsonStorage("data/questions.json")
+    # storage = JsonStorage("data/questions.json")
     async with AsyncSessionLocal() as session:
-        storage=SqlalchemyRepositories(session)
-
+        storage = SqlalchemyRepositories(session)
 
     if args.command == "add":
         tags = [t.strip() for t in args.tags.split(",") if t.strip()]
@@ -71,6 +77,7 @@ async def main() -> None:
             print(f"\n[抽题] {i}. [{q.difficulty}] {q.title}")
             if q.answer:
                 print(f"   答案：{q.answer}")
+
 
 if __name__ == "__main__":
     asyncio.run(main())

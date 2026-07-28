@@ -1,6 +1,7 @@
 import json
 import random as rand
 from pathlib import Path
+
 import aiofiles
 
 from models.question import Question
@@ -10,7 +11,7 @@ class JsonStorage:
     """JSON 文件持久化存储 —— 所有题目存为一个 JSON 数组"""
 
     def __init__(self, file_path: str):
-        self.file_path=Path(file_path)
+        self.file_path = Path(file_path)
 
     async def _read_all(self) -> list[dict]:
         """读取全部题目，返回字典列表"""
@@ -44,7 +45,8 @@ class JsonStorage:
         questions = await self._read_all()
         kw = keyword.lower()
         return [
-            Question(**q) for q in questions
+            Question(**q)
+            for q in questions
             if kw in q["title"].lower() or kw in q["answer"].lower()
         ]
 
@@ -52,33 +54,31 @@ class JsonStorage:
         questions = await self.list_all(tag=tag)
         if not questions:
             return []
-        if limit<=0:
-            limit=1
-        return rand.sample(questions, min(limit, len(questions)))#不重复抽取用sample
+        if limit <= 0:
+            limit = 1
+        return rand.sample(questions, min(limit, len(questions)))  # 不重复抽取用sample
 
-    async def update(self,question:Question):
-        question_dicts=await self._read_all()
+    async def update(self, question: Question):
+        question_dicts = await self._read_all()
         if not question_dicts:
             raise StorageError("题目库为空")
         for q in question_dicts:
-            if question.id==q["id"]:
+            if question.id == q["id"]:
                 q.update(question.model_dump())
                 await self._write_all(question_dicts)
                 return
-        
 
-    async def delete(self,question_id:str):
-        question_dicts=await self._read_all()
+    async def delete(self, question_id: str):
+        question_dicts = await self._read_all()
         if not question_dicts:
             raise StorageError("题目库为空")
         for q in question_dicts:
-            if question_id==q["id"]:
+            if question_id == q["id"]:
                 question_dicts.remove(q)
                 await self._write_all(question_dicts)
                 return
         raise StorageError("题目库为空")
 
-class StorageError(Exception):     # 纯 Python，无第三方依赖
-    pass
 
-    
+class StorageError(Exception):  # 纯 Python，无第三方依赖
+    pass
