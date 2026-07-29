@@ -21,8 +21,8 @@ logger.add(
 # 文件日志：每天一个文件，保留 7 天（自动清理旧日志）
 logger.add(
     sink="logs/api_{time:YYYY-MM-DD}.log",
-    rotation="1 day",       # 每天轮转一次
-    retention="7 days",     # 只保留最近 7 天的文件
+    rotation="1 day",  # 每天轮转一次
+    retention="7 days",  # 只保留最近 7 天的文件
     level="INFO",
     format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {message}",
     encoding="utf-8",

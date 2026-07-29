@@ -1,3 +1,4 @@
+import json
 import os
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
@@ -9,6 +10,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.user_orm import UserTable
 from schemas.user import UserCreate
+
+from models.question_orm import QuestionTable
 
 # ================= 密码哈希 =================
 
@@ -113,14 +116,26 @@ async def create_user(db: AsyncSession, data: UserCreate) -> UserTable:
     Returns:
         创建成功的 UserTable ORM 对象
     """
+    
     user = UserTable(
         id=uuid4().hex[:12],
         username=data.username,
         hashed_password=hash_password(data.password),
     )
     db.add(user)
+    #await db.commit()
+    await db.flush()
+
+    q=QuestionTable(
+        id=uuid4().hex[0:12],
+        title="装饰器是干什么用的",
+        tags=json.dumps(["装饰器","python基础"]),
+        answer="注册函数返回函数地址并加强或只注册"
+    )
+    db.add(q)
     await db.commit()
-    await db.refresh(user)
+    await db.refresh(user)#顺序有讲究
+    
     return user
 
 

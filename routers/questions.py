@@ -16,7 +16,7 @@ router = APIRouter(prefix="/questions", tags=["questions"])
 async def list_questions(
     tag: str | None = None,
     page: int = Query(1, ge=1, description="页码，从 1 开始"),
-    page_size: int = Query(10, ge=1, le=100, description="每页条数，最多 100"),
+    page_size: int = Query(10, ge=1, le=50, description="每页条数，最多 50"),
     storage=Depends(get_storage),
 ):
     """分页查询题目列表
