@@ -8,6 +8,7 @@ from loguru import logger
 from middleware.logging import log_request
 from routers.auth import router as auth_router
 from routers.questions import router as question_router
+from routers.ai import router as ai_router
 
 app = FastAPI(title="interview-agent", description="面试题库管理 API")
 
@@ -33,7 +34,7 @@ app.middleware("http")(log_request)
 # 注册路由
 app.include_router(question_router)
 app.include_router(auth_router)
-
+app.include_router(ai_router)
 
 # ============================================================
 # 全局异常处理器 — 兜底未捕获的异常

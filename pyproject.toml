@@ -15,6 +15,9 @@ dependencies = [
     "passlib[bcrypt]>=1.7.4",
     "redis>=8.0.1",
     "loguru>=0.7.3",
+    "openai>=2.50.0",
+    "numpy>=2.5.1",
+    "faiss-cpu>=1.14.3",
 ]
 
 [dependency-groups]

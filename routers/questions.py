@@ -66,7 +66,6 @@ async def get_question(question_id: str, storage=Depends(get_storage)):
             return question
     raise HTTPException(status_code=404, detail="找不到这个问题")
 
-
 @router.post("/")
 async def create_question(
     body: QuestionCreate,

@@ -107,3 +107,19 @@ class SqlalchemyRepositories:
             return
         await self.session.delete(row)
         await self.session.commit()
+
+    async def list_all_questions(self):
+        stmt=select(QuestionTable)
+        result=await self.session.execute(stmt)
+        rows=result.scalars().all()
+        if not rows:
+            return []
+        return [self._to_pydantic(r) for r in rows]
+
+    async def get_by_ids(self,ids:list[str]):
+        stmt=select(QuestionTable).where(QuestionTable.id.in_(ids))
+        result=await self.session.execute(stmt)
+        rows=result.scalars().all()
+        if not rows:
+            return []
+        return [self._to_pydantic(r) for r in rows]
