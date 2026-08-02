@@ -1,31 +1,46 @@
-import json
 
 from fastapi import APIRouter,Depends
-from fastapi.responses import StreamingResponse
-from services.llm_client import get_llm_client
+
 from services.embedding_service import EmbeddingService
 from dependencies import get_storage
 from repositories.sqlalchemy_repo import SqlalchemyRepositories
 from models.question import Question 
+from services.stream_service import generate_question
 
 from schemas.rag_request import RagRequest
 
 router = APIRouter(prefix="/ai", tags=["AI"])
-embedding_question=EmbeddingService()
-embedding_md=EmbeddingService()
+
+embedding_question:EmbeddingService|None=None
+embedding_md:EmbeddingService|None=None
+
+def get_question_sql()->EmbeddingService:
+    global embedding_question
+    if embedding_question is None:
+          embedding_question=EmbeddingService()
+    return embedding_question
+
+def get_question_md()->EmbeddingService:
+    global embedding_md
+    if embedding_md is None:
+          embedding_md=EmbeddingService()
+    return embedding_md
+
+
 @router.post("/rag-task")
 async def rag_ask(
         rag_request:RagRequest,
         repoQ:SqlalchemyRepositories=Depends(get_storage)
     ):
+    embedding_md=get_question_md()
     if embedding_md.index is None:
-            await embedding_md.build_index_md()
+        await embedding_md.build_index_md()
     md_str=await embedding_md.search(rag_request.question)
     ref_data="\n".join(
         f"参考资料{i+1}:{d["id"]}"
         for i,d in enumerate(md_str,0)
     )
-
+    embedding_question=get_question_sql()
     if embedding_question.index is None:
         await embedding_question.build_index_db(repoQ)
     questions=await embedding_question.search(rag_request.question,rag_request.k)
@@ -43,42 +58,13 @@ async def rag_ask(
     return await generate_question(augmented_prompt)
 
 
-
-async def generate_stream(user_prompt:str):
-    client = get_llm_client()  # 普通函数，不需要 await
-    #prompt = Generate_Question_Prompts.format(topic=topic, difficulty=difficulty, count=count)
-
-    #先准备“知识”,再检索给模板
-    stream=await client.chat.completions.create(
-        model="deepseek-chat",
-        messages=[
-            {"role":"system","content":"返回一定要是json格式"},
-            {"role":"user","content":user_prompt},
-        ],
-        temperature=0.7,
-        max_tokens=2048,
-        stream=True,
-    )
-    async for chunk in stream:
-        delta=chunk.choices[0].delta.content
-        if delta:
-            yield f"data:{json.dumps({'chunk':delta})}\n\n"
-    yield "data:[Done]\n\n"
-
-async def generate_question(user_prompt:str):
-
-    return StreamingResponse(
-        generate_stream(user_prompt),
-        media_type="text/event-stream",
-    )
-
-
 '''模块级单例：embedding_service = EmbeddingService() 放文件顶部
     端点：@router.get("/semantic-search")，参数 q: str 和 k: int = 5，依赖注入 db
     逻辑：如果 embedding_service.index is None → await build_index(db) → 
     然后 embedding_service.search(q, k) → 返回'''
 @router.get("/semantic-search")
 async def embedding_search(query_text:str,k:int=2,repoQ:SqlalchemyRepositories=Depends(get_storage)):
+    embedding_question=get_question_sql()
     if embedding_question.index is None:
         await embedding_question.build_index_db(repoQ) 
     map_id=await embedding_question.search(query_text,k)

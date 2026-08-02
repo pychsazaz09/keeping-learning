@@ -13,21 +13,27 @@ class EmbeddingService:
         self.id_map: list[str] = []
         self.emb=embedding_client
 
-    async def build_index_db(self,repoQ:SqlalchemyRepositories):
-        questions=await repoQ.list_all_questions()
-        if not questions:
-            raise ValueError("题库里没题目")
+
+    async def add_index(self,texts:list[str],ids:list[str]):
         self.index = faiss.IndexFlatL2(self.dim)
-        for i,q in enumerate(questions, 0):
+        for text,id in zip(texts,ids):
             #title_vector = np.random.randn(self.dim)
             response=await self.emb.embeddings.create(
                 model="BAAI/bge-large-zh-v1.5",
-                input=q.title,
+                input=text,
             )
             vector=response.data[0].embedding
             print(f"*******实际维度: {len(vector)}")
             self.index.add(np.array([vector], dtype=np.float32))
-            self.id_map.append(q.id)
+            self.id_map.append(id)
+
+    async def build_index_db(self,repoQ:SqlalchemyRepositories):
+        questions=await repoQ.list_all_questions()
+        if not questions:
+            raise ValueError("题库里没题目")
+        texts = [q.title for q in questions]
+        ids = [q.id for q in questions]
+        await self.add_index(texts,ids)
 
     async def build_index_md(self):
         with open("data/data_python.md","r",encoding="utf-8") as f:
@@ -35,17 +41,7 @@ class EmbeddingService:
         if not text:
             raise ValueError("md文件为空")
         sections=text.split("##")
-        self.index = faiss.IndexFlatL2(self.dim)
-        for s in sections:
-            #embedding的地方
-            #title_vector = np.random.randn(self.dim)
-            response=await self.emb.embeddings.create(
-                model="BAAI/bge-large-zh-v1.5",
-                input=s,
-            )
-            vector=response.data[0].embedding
-            self.index.add(np.array([vector], dtype=np.float32))
-            self.id_map.append(s)
+        await self.add_index(sections,sections)
 
     def save_index(self, path: str):
         if self.index is None:
