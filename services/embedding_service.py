@@ -1,5 +1,4 @@
 import faiss 
-from models.question import Question
 import numpy as np
 from repositories.sqlalchemy_repo import SqlalchemyRepositories
 from services.embedding_client import embedding_client

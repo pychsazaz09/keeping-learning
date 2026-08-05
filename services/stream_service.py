@@ -20,6 +20,7 @@ async def generate_stream(user_prompt:str):
     async for chunk in stream:
         delta=chunk.choices[0].delta.content
         if delta:
+            print(delta,end="",flush=True)
             yield f"data:{json.dumps({'chunk':delta})}\n\n"
     yield "data:[Done]\n\n"
 
